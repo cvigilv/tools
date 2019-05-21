@@ -1,12 +1,13 @@
 #!/bin/sh
 
-OPTIONS="Laptop display (eDP1)\nExternal display (HDMI)\nDual display (HDMI + eDP1)\nManual selection"
+OPTIONS="Laptop display (eDP1)\nExternal display (HDMI)\nDual display (HDMI + eDP1)\nDual display (eDP1 + HDMI)\nManual selection"
 
 CHOSEN=$(echo -e "$OPTIONS" | dmenu -i -p "Select your display mode:")
 
 case "$CHOSEN" in
 	"Laptop display (eDP1)")	xrandr --output eDP1 --mode 1920x1200 --output HDMI2 --off;;
 	"External display (HDMI)")	xrandr --output HDMI2 --auto --output eDP1 --off;;
-	"Dual display (HDMI + eDP1)")	xrandr --output HDMI2 --auto --output eDP1 --mode 1920x1200 --right-of HDMI2;;
+	"Dual display (HDMI + eDP1)")	xrandr --output HDMI2 --primary --auto --output eDP1 --mode 1920x1200 --right-of HDMI2;;
+	"Dual display (eDP1 + HDMI)")	xrandr --output eDP1 --primary --mode 1920x1200 --output HDMI2 --auto --right-of eDP1;;
 	"Manual selection")		arandr;;
 esac
