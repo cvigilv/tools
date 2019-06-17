@@ -1,0 +1,62 @@
+#!/bin/sh
+#
+# =============================================
+# newFile (version 0.0)
+# by Carlos Vigil Vásquez
+#
+# Create files from template for scripting
+#
+# https://github.com/cvigilv/
+# =============================================
+
+# SCRIPT HISTORY
+_version_="0.0"
+_released_="2019.06.02"
+_title_="newFile - Ready-to-write script generator $_version_"
+
+# FUNCTIONS
+helper() { echo $_title_; echo -e "\nUsage: $0 [arguments]\n\nArguments:\n  -h or --help\t\tPrint Help (this message) and exit\n  --version\t\tPrint version information and exit\n  -n\t\t\tFile name"; exit 1; }
+
+ver() { echo $_title_; echo -e "\nVersion:\t\t$_version_\nRelease:\t\t$_released_"; exit 1; }
+
+# Script start
+if [[ -z $1 ]]; then
+    echo -e "Usage:\t\t$0 [ n <string> ] [ -x <py|sh|rmd|dmenu> ] [ --help ] [ --version ]\nMore info with:\t$0 --help"
+    exit 1
+fi
+
+while getopts :n:x:-: arguments; do
+    case $arguments in
+    -)  # Parse long arguments
+        case "${OPTARG}" in
+            help)       helper;;
+            version)    ver;;
+            *)          echo $_title_; echo -e "Unknown option argument: \"-${OPTARG}\"\nMore info with: \"$0 --help\"";;
+        esac;;
+    n)  # File name
+        NAME=${OPTARG};;
+    x)  # Extension of file to create
+        case "${OPTARG}" in
+            py) EXT=${OPTARG}; LANGUAJE="Python 3"; TEMPLATE="PYT";;
+            sh) EXT=${OPTARG}; LANGUAJE="Shell"; TEMPLATE="SHT";;
+            rmd) EXT=${OPTARG}; LANGUAJE="Rmarkdown"; TEMPLATE="RMT";;
+            dmenu) EXT=${OPTARG}; LANGUAJE='Dmenu'; TEMPLATE="DMT";;
+        esac
+        (( $EXT == "py" || $EXT == "sh" || $EXT == "rmd" || $EXT == "dmenu" )) || usage;;
+    *)  # Unknown argument
+        echo $_title_;
+        echo -e "Unknown option argument: \"-${OPTARG}\"\nMore info with:\t\"$0 --help\"";;
+    esac
+done
+echo $_title_
+
+if [[ -z ${NAME} ]]; then
+    NAME="newfile.${EXT}"
+else
+    NAME=${NAME}.${EXT}
+fi
+
+echo $(dirname $0)
+cp /home/carlos/Repos/tools/templates/${TEMPLATE} ./${NAME}
+echo "Created $LANGUAJE file: $NAME"
+exit 1
