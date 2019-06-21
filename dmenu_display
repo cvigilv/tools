@@ -1,4 +1,14 @@
 #!/bin/sh
+#
+# =============================================
+# dmenu_display (version 0.0)
+# by Carlos Vigil Vásquez
+#
+# Dmenu for external display options
+#
+# https://github.com/cvigilv/
+# =============================================
+
 
 OPTIONS="Laptop display (eDP1)\nExternal display (HDMI)\nDual display (HDMI + eDP1)\nDual display (eDP1 + HDMI)\nManual selection"
 
