@@ -1,0 +1,36 @@
+#!/bin/sh
+#
+# =============================================
+# i3battery (version 0.0)
+# by Carlos Vigil Vásquez
+#
+# Get battery info for i3blocks
+#
+# https://github.com/cvigilv/
+# =============================================
+
+# Get battery percentage, time left and if plugged or running from battery
+BAT=$(acpi -b | grep -E -o '[0-9][0-9]?%')
+TIME=$(acpi -b | awk -F "," '{print $3}')
+PLUGGED=$(acpi -a | awk '{print $3}')
+
+# Select symbol depending in power state
+if [ "$PLUGGED" == "on-line" ]; then
+    ICON=
+else
+    ICON=
+
+    [ ${BAT%?} -le 80 ] && ICON=
+    [ ${BAT%?} -le 60 ] && ICON=
+    [ ${BAT%?} -le 40 ] && ICON=
+    [ ${BAT%?} -le 20 ] && ICON=
+    [ ${BAT%?} -le 10 ] && ICON=
+fi
+
+echo " $ICON $BAT -$TIME "
+
+# Set urgent flag below 5% or use orange below 20%
+[ ${BAT%?} -le 10 ] && notify-send "Charge battery ($BAT)!" && exit 33
+[ ${BAT%?} -le 20 ] && echo "#FF8000"
+
+exit 0

@@ -1,0 +1,20 @@
+#!/bin/sh
+#
+# =============================================
+# dmenu_maim (version 0.0)
+# by Carlos Vigil Vásquez
+#
+# Dmenu for screenshots
+#
+# https://github.com/cvigilv/
+# =============================================
+
+OPTIONS="Fullscreen\nWindow\nSelection"
+
+CHOSEN=$(echo -e "$OPTIONS" | dmenu -i -p "Select area to capture:")
+
+case "$CHOSEN" in
+    "Fullscreen") maim $HOME/Screenshots/fullscreen-$(date +%Y%m%d-%H%H%S).png;;
+    "Window")maim -i $(xdotool getactivewindow) $HOME/Screenshots/window-$(date +%Y%m%d-%H%H%S).png;;
+    "Selection")  maim -s $HOME/Screenshots/selection-$(date +%Y%m%d-%H%H%S).png ;;
+esac

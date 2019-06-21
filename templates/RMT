@@ -1,0 +1,17 @@
+---
+title: <++>
+author: <++>
+output:
+    pdf_document:
+        number_sections: <++>
+        toc: <++>
+lang: 'es'
+fontsize: 10pt
+---
+
+\renewcommand{\figurename}{Fig.}
+\renewcommand{\tablename}{Tabla}
+
+-----
+
+<++>

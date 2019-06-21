@@ -1,0 +1,25 @@
+#!/bin/sh
+#
+# =============================================
+# i3volume (version 0.0)
+# by Carlos Vigil Vásquez
+#
+# Get and format volume from PulseAudio
+#
+# https://github.com/cvigilv/
+# =============================================
+
+
+VOLUME=$(amixer -D pulse sget Master | tail -1 | awk '{print $5}' | sed 's/[][]//g')
+STATE=$(amixer -D pulse sget Master | tail -1 | awk '{print $6}' | sed 's/[][]//g')
+
+[ ${VOLUME%?} -le 100 ] && ICON=
+[ ${VOLUME%?} -le 60 ] && ICON=
+[ ${VOLUME%?} -le 20 ] && ICON=
+
+
+if [ "$STATE" == "off"  ]; then
+    ICON=
+fi
+
+echo " $ICON $VOLUME "

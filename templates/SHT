@@ -1,0 +1,42 @@
+#!/bin/sh
+#
+# =============================================
+# <++>.sh (version 0.0)
+# by Carlos Vigil Vásquez
+#
+# <++>
+#
+# https://github.com/cvigilv/
+# =============================================
+
+# SCRIPT HISTORY
+_version_="0.0"
+_released_="Currently in development"
+_title_="<++> - <++> $_version_"
+
+# ARGUMENT PARSING
+ helper() { echo $_title_; echo -e "\nUsage: $0 [arguments]\n\nArguments:\n  -h or --help\t\tPrint Help (this message) and exit\n  --version\t\tPrint version information and exit"; exit 1; }
+
+ ver() { echo $_title_; echo -e "\nVersion:\t\t$_version_\nRelease:\t\t$_released_"; exit 1; }
+
+if [[ -z $1 ]]; then
+    echo -e "Usage:\t\t$0 [ --help ] [ --version ]\nMore info with:\t$0 --help"
+    exit 1
+fi
+
+while getopts :n-: arguments;do
+    case $arguments in
+    -)  # Parse long arguments
+        case "${OPTARG}" in
+            help)       helper;;
+            version)    ver;;
+            *)          echo $_title_; echo -e "Unknown option argument: \"-${OPTARG}\"\nMore info with: \"$0 --help\"";;
+        esac;;
+    *)  # Unknown argument
+        echo $_title_;
+        echo -e "Unknown option argument: \"-${OPTARG}\"\nMore info with:\t\"$0 --help\"";;
+    esac
+done
+
+# FUNCTIONS
+# MAIN

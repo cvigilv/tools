@@ -1,0 +1,19 @@
+#!/bin/sh
+#
+# =============================================
+# dmenu_<++> (version 0.0)
+# by Carlos Vigil Vásquez
+#
+# <++>
+#
+# https://github.com/cvigilv/
+# =============================================
+
+
+OPTIONS="<++>"
+
+CHOSEN=$(echo -e "$OPTIONS" | dmenu -i -p "<++>")
+
+case "$CHOSEN" in
+    <++>);;
+esac

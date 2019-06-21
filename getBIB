@@ -1,0 +1,26 @@
+#!/bin/sh
+#
+# =============================================
+# getbib.sh (version 0.0)
+# by Carlos Vigil Vásquez
+#
+# Get .bib formatted data for publication
+# Inspired in Luke Smith implementation.
+# https://github.com/cvigilv/
+# =============================================
+
+[ -z "$1" ] && echo -e "Usage:\t $0 < /path/to/pdf/file | DOI >" && exit
+
+if [ -f "$1" ]; then
+    # Get DOI from file
+    DOI=$(pdfinfo "$1" | grep -io "doi:.*" -m 1) ||
+    DOI=$(pdftotext "$1" 2>/dev/null - | grep -io "doi:.*" -m 1) ||
+    exit "BIB not found for $1"
+else
+    DOI="$1"
+fi
+
+DOI=$(echo -e "${DOI}" | tr -d '[:space:]')
+echo -e "% <++>\t$1\t$DOI"
+# Check crossfref.org for the bib citation
+curl -s "http://api.crossref.org/works/$DOI/transform/application/x-bibtex" -w "\\n"
