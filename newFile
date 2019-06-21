@@ -51,9 +51,9 @@ done
 echo $_title_
 
 if [[ -z ${NAME} ]]; then
-    NAME="newfile.${EXT}"
+    NAME="newfile"
 else
-    NAME=${NAME}.${EXT}
+    NAME=${NAME}
 fi
 
 echo $(dirname $0)
