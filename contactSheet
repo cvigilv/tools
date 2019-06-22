@@ -1,0 +1,19 @@
+#!/bin/sh
+#
+# =============================================
+# contactSheet (version 0.0)
+# by Carlos Vigil Vásquez
+#
+# Create contact sheet for photo directory
+#
+# https://github.com/cvigilv/
+# =============================================
+
+# SCRIPT HISTORY
+_version_="0.0"
+_released_="Currently in development"
+_title_="contactSheet - Contacts made easy! $_version_"
+
+# Create contact sheet of current directory
+magick montage -label "%f" -title "$(basename $(pwd))" -tile 6x7 -fill 'black' -pointsize 36 -background "#f1f1f1ff" -bordercolor "#5f5f5fff" -borderwidth 2 -geometry 600x400+20+20 *.tif $(basename $(pwd))C.jpg
+
