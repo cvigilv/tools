@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # =============================================
-# <++>.sh (version 0.0)
+# <++> (version 0.0)
 # by Carlos Vigil Vásquez
 #
 # <++>
@@ -15,9 +15,24 @@ _released_="Currently in development"
 _title_="<++> - <++> $_version_"
 
 # ARGUMENT PARSING
- helper() { echo $_title_; echo -e "\nUsage: $0 [arguments]\n\nArguments:\n  -h or --help\t\tPrint Help (this message) and exit\n  --version\t\tPrint version information and exit"; exit 1; }
+ helper()
+{echo "
+Usage: <++> [arguments]
 
- ver() { echo $_title_; echo -e "\nVersion:\t\t$_version_\nRelease:\t\t$_released_"; exit 1; }
+Arguments:
+    -h or --help        Print Help (this message) and exit
+    --version           Print version information and exit";
+exit 1;
+}
+
+ver()
+{echo "
+Version:        $_version_
+Release:        $_released_";
+exit 1;
+}
+
+echo "$_title_"
 
 if [[ -z $1 ]]; then
     echo -e "Usage:\t\t$0 [ --help ] [ --version ]\nMore info with:\t$0 --help"
@@ -30,13 +45,9 @@ while getopts :n-: arguments;do
         case "${OPTARG}" in
             help)       helper;;
             version)    ver;;
-            *)          echo $_title_; echo -e "Unknown option argument: \"-${OPTARG}\"\nMore info with: \"$0 --help\"";;
+            *)          echo -e "Unknown option argument: \"-${OPTARG}\"\nMore info with: \"$0 --help\"";;
         esac;;
     *)  # Unknown argument
-        echo $_title_;
         echo -e "Unknown option argument: \"-${OPTARG}\"\nMore info with:\t\"$0 --help\"";;
     esac
 done
-
-# FUNCTIONS
-# MAIN
