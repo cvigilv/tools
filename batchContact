@@ -1,0 +1,135 @@
+#!/bin/sh
+#
+# ===================================================
+# batchContact (version 0.0)
+# by Carlos Vigil Vásquez
+#
+# Create contacts and store in folder for year folder
+#
+# https://github.com/cvigilv/
+# ===================================================
+
+# Some basic stuff for "software development"...
+_version_="0.0"
+_released_="Currently in development"
+_title_="batchContact - Create and store contacts $_version_"
+
+helper()
+{
+echo "
+Usage: batchContact [arguments]
+
+Arguments:
+    -h  or  --help              Print Help (this message) and exit
+    --version                   Print version information and exit
+    -o  or  --overwrite         Overwrite existing contact sheets";
+exit 1;
+}
+
+ver()
+{
+echo "
+Version:        $_version_
+Release:        $_released_";
+exit 1;
+}
+
+createContact()
+{
+echo "· Creating contact sheet for $PWD";
+contactSheet;
+}
+
+createSymlink()
+{
+echo "· Creating symlink for contact sheet of $PWD";
+ln -f $(basename $PWD)C.jpg $PARENT_DIR/Contacts/$(basename $PWD);
+}
+
+ErrorMessage()
+{
+case $1 in
+    Overwrite)  echo -e "\e[91m\e[1m[FATAL ERROR]\e[0m Can't overwrite files!"; exit 1;;
+    *)          echo -e "\e[91m\e[1m[FATAL ERROR]\e[0m"; exit 1;;
+esac
+}
+
+echo "$_title_"
+
+# Argument parsing
+if [[ -z $1 ]]; then
+    echo -e "\n\e[91m\e[1mRunning with default options!\e[0m"
+    echo -e "More info with:\t\"batchContact -h\""
+fi
+while getopts :not:-: arguments;do
+    case $arguments in
+    -)  # Parse long arguments
+        case "${OPTARG}" in
+            help)       helper;;
+            version)    ver;;
+            overwrite)  OVERWRITE="true";;
+            *)          echo $_title_; echo -e "Unknown option argument: \"-${OPTARG}\"\nMore info with: \"$0 --help\"";;
+        esac;;
+    o)  # Overwrite previously existing contact sheets
+        OVERWRITE="true";;
+    t)  # Run for given path
+        DIR=${OPTARG};;
+    *)  # Unknown argument
+        echo $_title_;
+        echo -e "Unknown option argument: \"-${OPTARG}\"\nMore info with:\t\"$0 --help\"";;
+    esac
+done
+
+[ -z "$OVERWRITE" ] && OVERWRITE="false"
+
+if [ -z $DIR ]; then
+    # Set variables for directories used
+    PARENT_DIR=$PWD
+    CHILD_DIR=$(ls $PARENT_DIR)
+
+    # Check existence of folder for contact sheet symlinks
+    if [ ! -d "$PARENT_DIR/Contacts" ]; then
+        mkdir $PARENT_DIR/Contacts
+        echo "Created \"Contacts\" folder"
+    fi
+
+    # Loop through each child directory
+    for DIR in $CHILD_DIR; do
+        # Check if path is a directory and not the 'Contacts' folder
+        if [ -d "$DIR" ] && [ ! $DIR == 'Contacts' ]; then
+            cd $DIR
+            echo -e "\nChanged to directory $DIR"
+
+            # Check existence of contact sheet & if it can be overwritten
+            if [ ! -f "$(basename $DIR)C.jpg" ]; then
+                createContact && createSymlink && cd $PARENT_DIR || ErrorMessage "*"
+            else
+                if $OVERWRITE; then
+                    createContact && createSymlink && cd $PARENT_DIR
+                else
+                    ErrorMessage "Overwrite"
+                fi
+            fi
+        fi
+    done
+else
+    cd $DIR
+    echo -e "\nChanged to directory $(pwd)"
+
+    if [ -f "$(basename $(pwd))C.jpg" ]; then
+        if $OVERWRITE; then
+            echo -e "\e[91m\e[1m[ALERT]\e[0m Overwriting existing contact sheet \"$(basename $(pwd))C.jpg\"!"
+            createContact
+        else
+            echo -e "\e[91m\e[1mCan't overwrite files!\e[0m"
+            echo -e "More info with:\t\"batchContact -h\""
+            exit 1
+        fi
+    else
+        createContact
+    fi
+    echo
+    cd -
+fi
+
+echo "Finished running! - Time elapsed: $(date -d@$SECONDS -u +%H:%M:%S)"
