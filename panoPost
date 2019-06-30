@@ -1,0 +1,133 @@
+#!/bin/bash
+#
+# =============================================
+# panoPost (version 0.0)
+# by Carlos Vigil Vásquez
+#
+# Create panoramic post for Instagram
+#
+# https://github.com/cvigilv/
+# =============================================
+
+# SCRIPT HISTORY
+_version_="0.0"
+_released_="Currently in development"
+_title_="panoPost - Panoramic post creator $_version_"
+
+# ARGUMENT PARSING
+ helper()
+{
+echo
+"Usage: panoPost [arguments]
+
+Arguments:
+    -h or --help        Print Help (this message) and exit
+    --version           Print version information and exit";
+exit 1;
+}
+
+ver()
+{
+echo
+"Version:        $_version_
+Release:        $_released_";
+exit 1;
+}
+
+echo "$_title_"
+
+#if [[ -z $1 ]]; then
+#    echo -e "Usage:\t\t$0 [ --help ] [ --version ]\nMore info with:\t$0 --help"
+#    exit 1
+#fi
+
+#while getopts :n-: arguments;do
+#    case $arguments in
+#    -)  # Parse long arguments
+#        case "${OPTARG}" in
+#            help)       helper;;
+#            version)    ver;;
+#            *)          echo -e "Unknown option argument: \"-${OPTARG}\"\nMore info with: \"$0 --help\"";;
+#        esac;;
+#    *)  # Unknown argument
+#        echo -e "Unknown option argument: \"-${OPTARG}\"\nMore info with:\t\"$0 --help\"";;
+#    esac
+#done
+
+echo "Getting dimensions for resizing"
+
+# Loop over every picture of the working directory
+for file in $(ls $PWD); do
+    # Check if variable 'file' refers to a file
+    [ -f $file ] || continue
+
+    # Retrieve information from file
+    W=$(identify -ping -format '%w' $file)
+    H=$(identify -ping -format '%h' $file)
+
+    # Get orientation of picture
+    [ $W -ge $H ] && O='Landscape' || O='Portrait'
+
+    # Check if 'minimum height' variable exists
+    [ -z $MinH ] && MinH=$H
+
+    # Check if image is the one with smallest width
+    [ $H -le $MinH ] && MinH=$H
+
+    # Print basic information of picture
+    #echo "File:          $file"
+    #echo "· Width:       $W"
+    #echo "· Height:      $H"
+    #echo "· Orientation: $O"
+    #echo
+done
+
+echo "Resizing files"
+
+for file in $(ls $PWD); do
+    # Check if variable 'file' refers to a file
+    [ -f $file ] || continue
+
+    # Resize all images to the one with smallest height
+    convert $file -geometry x$MinH temp_$file
+
+    # Get width of resized picture
+    R_W=$(identify -ping -format '%w' temp_$file)
+
+    # Add up widths to get canvas size
+    [ -z $CanvasW ] && CanvasW=$R_W || CanvasW=$(($CanvasW + $R_W))
+done
+
+# Create blank canvas for final product
+echo "Creating blank canvas"
+CanvasW=$(($MinH* $(echo "$CanvasW/$MinH" | bc -l | awk '{print int($1+1.0)}')))
+convert -size ${CanvasW}x${MinH} xc:white canvas.jpg
+
+
+# Create panoramic picture
+echo "Creating composite of images"
+xShift=0
+for file in $(ls $PWD/temp*); do
+    # Check if variable 'file' refers to a file
+    [ -f $file ] || continue
+
+    # Composite image with canvas
+    convert canvas.jpg $file -gravity southwest -geometry +$xShift+0 -composite canvas.jpg
+
+    # Get width of image to shift the composite with the next image
+    xShift=$(($xShift+$(identify -ping -format '%w' $file)))
+done
+
+# Create slices of panoramic image
+xShift=0
+Iterations=$(($CanvasW/$MinH))
+[ $Iterations -gt 9 ] && exit "Too many images to create post!"
+
+echo "Creating slices for post!"
+
+for i in $(seq 1 $Iterations); do
+    convert canvas.jpg -gravity southwest -crop ${MinH}x$MinH+$xShift+0 Slice_$i.jpg
+    xShift=$(($xShift+$MinH))
+done
+
+rm temp*
