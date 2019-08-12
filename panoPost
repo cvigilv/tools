@@ -35,84 +35,84 @@ exit 1;
 }
 
 echo "$_title_"
+echo
 
-#if [[ -z $1 ]]; then
-#    echo -e "Usage:\t\t$0 [ --help ] [ --version ]\nMore info with:\t$0 --help"
-#    exit 1
-#fi
+# Default arguments
+DIR=$PWD
+FACTOR="1/1" # 1/1 for square, 3/2 for landscape, 4/5 for portrait
 
-#while getopts :n-: arguments;do
-#    case $arguments in
-#    -)  # Parse long arguments
-#        case "${OPTARG}" in
-#            help)       helper;;
-#            version)    ver;;
-#            *)          echo -e "Unknown option argument: \"-${OPTARG}\"\nMore info with: \"$0 --help\"";;
-#        esac;;
-#    *)  # Unknown argument
-#        echo -e "Unknown option argument: \"-${OPTARG}\"\nMore info with:\t\"$0 --help\"";;
-#    esac
-#done
+# Argument parser
+while getopts :-: arguments;do
+    case $arguments in
+    -)  # Parse long arguments
+        case "${OPTARG}" in
+            help)       helper;;
+            version)    ver;;
+            *)          echo -e "Unknown option argument: \"-${OPTARG}\"\nMore info with: \"$0 --help\"";;
+        esac;;
+    *)  # Unknown argument
+        echo -e "Unknown option argument: \"-${OPTARG}\"\nMore info with:\t\"$0 --help\"";;
+    esac
+done
 
-echo "Getting dimensions for resizing"
+# Analyse ever image of composition to get dimensions
+N_PICS=0
+echo "· Getting dimensions of picture for resizing"
 
-# Loop over every picture of the working directory
-for file in $(ls $PWD); do
-    # Check if variable 'file' refers to a file
-    [ -f $file ] || continue
+for file in $(ls $DIR); do
+    [ -f $file ] && N_PICS=$(($N_PICS + 1)) || continue
 
     # Retrieve information from file
     W=$(identify -ping -format '%w' $file)
     H=$(identify -ping -format '%h' $file)
 
-    # Get orientation of picture
-    [ $W -ge $H ] && O='Landscape' || O='Portrait'
-
-    # Check if 'minimum height' variable exists
+    # Check existence of MinH variable and update if the height of picture is lower than that value
     [ -z $MinH ] && MinH=$H
-
-    # Check if image is the one with smallest width
     [ $H -le $MinH ] && MinH=$H
-
-    # Print basic information of picture
-    #echo "File:          $file"
-    #echo "· Width:       $W"
-    #echo "· Height:      $H"
-    #echo "· Orientation: $O"
-    #echo
 done
 
-echo "Resizing files"
+# Set a couple of variables based in the previous analysis
+Canvas_H=$MinH
+Slice_H=$MinH
+Slice_W=$(echo "$MinH * $FACTOR" | bc -l | awk '{print int($1)}')
+unset MinH
 
-for file in $(ls $PWD); do
-    # Check if variable 'file' refers to a file
+echo "Number of picture:        $N_PICS"
+echo "Slice Height:             $Slice_H"
+echo "Slice Width:              $Slice_W"
+
+echo
+
+# Create temporal resized files used in composition
+echo "· Creating temporal resized files"
+for file in $(ls $DIR); do
     [ -f $file ] || continue
 
     # Resize all images to the one with smallest height
-    convert $file -geometry x$MinH temp_$file
+    convert $file -geometry x$Slice_H resized_$file
 
     # Get width of resized picture
-    R_W=$(identify -ping -format '%w' temp_$file)
+    Resized_W=$(identify -ping -format '%w' resized_$file)
 
     # Add up widths to get canvas size
-    [ -z $CanvasW ] && CanvasW=$R_W || CanvasW=$(($CanvasW + $R_W))
+    [ -z $Canvas_W ] && Canvas_W=$Resized_W || Canvas_W=$(($Canvas_W + $Resized_W))
 done
 
 # Create blank canvas for final product
-echo "Creating blank canvas"
-CanvasW=$(($MinH* $(echo "$CanvasW/$MinH" | bc -l | awk '{print int($1+1.0)}')))
-convert -size ${CanvasW}x${MinH} xc:white canvas.jpg
-
+echo "· Creating blank canvas"
+Canvas_W=$(($Slice_H*$(echo "$Canvas_W/$Slice_H" | bc -l | awk '{print int($1+1.0)}')))
+echo "Blank canvas size: ${Canvas_W}x${Canvas_H}"
+echo "Canvas color: White"
+convert -size ${Canvas_W}x${Canvas_H} xc:white composite.jpg
 
 # Create panoramic picture
-echo "Creating composite of images"
+echo "· Creating composite of images"
 xShift=0
-for file in $(ls $PWD/temp*); do
-    # Check if variable 'file' refers to a file
+for file in $(ls $DIR/resized_* | shuf); do
     [ -f $file ] || continue
 
     # Composite image with canvas
-    convert canvas.jpg $file -gravity southwest -geometry +$xShift+0 -composite canvas.jpg
+    convert composite.jpg $file -gravity southwest -geometry +$xShift+0 -composite composite.jpg
 
     # Get width of image to shift the composite with the next image
     xShift=$(($xShift+$(identify -ping -format '%w' $file)))
@@ -120,14 +120,15 @@ done
 
 # Create slices of panoramic image
 xShift=0
-Iterations=$(($CanvasW/$MinH))
-[ $Iterations -gt 9 ] && exit "Too many images to create post!"
+Iterations=$(($Canvas_W/$Slice_W))
+[ $Iterations -gt 9 ] && exit "Too many images to create post!" 1
 
-echo "Creating slices for post!"
+echo "· Creating slices for post!"
+echo "Number of slices: $Iterations"
 
 for i in $(seq 1 $Iterations); do
-    convert canvas.jpg -gravity southwest -crop ${MinH}x$MinH+$xShift+0 Slice_$i.jpg
-    xShift=$(($xShift+$MinH))
+    convert composite.jpg -gravity southwest -crop ${Slice_W}x${Slice_H}+$xShift+0 Slice_$i.jpg
+    xShift=$(($xShift+$Slice_W))
 done
 
-rm temp*
+rm resized_*
