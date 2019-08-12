@@ -96,7 +96,7 @@ if [ -z $DIR ]; then
     # Loop through each child directory
     for DIR in $CHILD_DIR; do
         # Check if path is a directory and not the 'Contacts' folder
-        if [ -d "$DIR" ] && [ ! $DIR == 'Contacts' ]; then
+        if [ -d "$DIR" ] && [ ! $DIR == 'Contacts' ] && [ ! $DIR == 'Finals' ]; then
             cd $DIR
             echo -e "\nChanged to directory $DIR"
 
