@@ -1,0 +1,61 @@
+#!/bin/sh
+#
+# =============================================
+# IGpost (version 0.0)
+# by Carlos Vigil Vásquez
+#
+# Create standarized posts for Instagram
+#
+# https://github.com/cvigilv/
+# =============================================
+
+# SCRIPT HISTORY
+_version_="0.0"
+_released_="Currently in development"
+_title_="IGpost - Standard IG posts $_version_"
+
+# ARGUMENT PARSING
+ helper()
+{
+echo
+"
+Usage: IGpost [arguments]
+
+Arguments:
+    -h or --help        Print Help (this message) and exit
+    --version           Print version information and exit";
+exit 1;
+}
+
+ver()
+{
+echo
+"
+Version:        $_version_
+Release:        $_released_";
+exit 1;
+}
+
+echo "$_title_"
+
+#if [[ -z $1 ]]; then
+#    echo -e "Usage:\t\t$0 [ --help ] [ --version ]\nMore info with:\t$0 --help"
+#    exit 1
+#fi
+
+while getopts :n-: arguments;do
+    case $arguments in
+    -)  # Parse long arguments
+        case "${OPTARG}" in
+            help)       helper;;
+            version)    ver;;
+            *)          echo -e "Unknown option argument: \"-${OPTARG}\"\nMore info with: \"$0 --help\"";;
+        esac;;
+    *)  # Unknown argument
+        echo -e "Unknown option argument: \"-${OPTARG}\"\nMore info with:\t\"$0 --help\"";;
+    esac
+done
+
+convert -size 2000x2000 xc:white /tmp/white_canvas.png
+convert $1 -resize 1850x1850\> -bordercolor black -border 10 /tmp/resized_$(basename $1)
+composite -gravity center /tmp/resized_$(basename $1) /tmp/white_canvas.png $(echo $1 | sed --expression='s/.jpg/-IG.jpg/g')
