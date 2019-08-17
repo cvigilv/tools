@@ -17,5 +17,5 @@ CHOSEN=$(echo -e "$OPTIONS" | dmenu -i -p "Where do you wanna go?")
 case "$CHOSEN" in
     "Github") $TERMINAL -e ranger $HOME/Repos/;;
     "University") $TERMINAL -e ranger $DRIVE/Universidad/;;
-    "Current semester") $TERMINAL -e ranger $DRIVE/Universidad/9no\ Semestre/;;
+    "Current semester") $TERMINAL -e ranger $DRIVE/Universidad/10mo\ Semestre/;;
 esac
