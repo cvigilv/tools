@@ -57,6 +57,6 @@ else
 fi
 
 echo $(dirname $0)
-cp /home/carlos/Repos/tools/templates/${TEMPLATE} ./${NAME}
+cp $HOME/Repos/tools/templates/${TEMPLATE} ./${NAME}
 echo "Created $LANGUAJE file: $NAME"
 exit 1
