@@ -33,7 +33,7 @@ echo " $ICON $BAT -$TIME "
 
 # Set urgent flag below 5% or use orange below 20%
 if [ "$PLUGGED" == 'off-line' ]; then
-    [ ${BAT%?} -le 10 ] && notify-send "Charge battery ($BAT)!" && exit 33
+    [ ${BAT%?} -le 5 ] && notify-send "Charge battery ($BAT)!" && exit 33
     [ ${BAT%?} -le 20 ] && echo "#FF8000"
 fi
 
