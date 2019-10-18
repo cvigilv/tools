@@ -14,4 +14,4 @@ _version_="0.0"
 _released_="Currently in development"
 _title_="setBG - Set my background boy! $_version_"
 
-feh --bg-fill $HOME/.config/wallpaper.jpg && notify-send "setBG.sh" 'Changed background image!'
+feh --image-bg white --bg-max $HOME/.config/wallpaper.jpg && notify-send "setBG.sh" 'Changed background image!'
