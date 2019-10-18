@@ -15,7 +15,7 @@ if [ -f "$1" ]; then
     # Get DOI from file
     DOI=$(pdfinfo "$1" | grep -io "doi:.*" -m 1) ||
     DOI=$(pdftotext "$1" 2>/dev/null - | grep -io "doi:.*" -m 1) ||
-    exit "BIB not found for $1"
+    exit "BIB not found for $1" 1
 else
     DOI="$1"
 fi
