@@ -17,13 +17,15 @@ _title_="Looper - Loop the loop! $_version_"
 CWD=$(pwd)
 
 echo -e "${_title_}\n$(date +%F\ %H:%M:%S)"
-echo -e "\nRunning $1 for directories in $CWD"
+echo -e "\nRunning $1 in $CWD"
 for DIR in *; do
     if [ -d "$DIR" ]; then
         cd $DIR
         echo "- $1 $DIR"
         $1
         cd $CWD
+    else
+        $1 $DIR
     fi
 done
 
