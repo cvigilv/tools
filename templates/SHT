@@ -1,13 +1,12 @@
 #!/bin/sh
-#
-# =============================================
-# <++> (version 0.0)
-# by Carlos Vigil Vásquez
+
+# = <++> ====================================================================
 #
 # <++>
 #
+# by Carlos Vigil Vásquez
 # https://github.com/cvigilv/
-# =============================================
+# ==============================================================================
 
 # SCRIPT HISTORY
 _version_="0.0"
@@ -34,20 +33,20 @@ exit 1;
 
 echo "$_title_"
 
-if [[ -z $1 ]]; then
-    echo -e "Usage:\t\t$0 [ --help ] [ --version ]\nMore info with:\t$0 --help"
-    exit 1
-fi
-
-while getopts :n-: arguments;do
-    case $arguments in
-    -)  # Parse long arguments
-        case "${OPTARG}" in
-            help)       helper;;
-            version)    ver;;
-            *)          echo -e "Unknown option argument: \"-${OPTARG}\"\nMore info with: \"$0 --help\"";;
-        esac;;
-    *)  # Unknown argument
-        echo -e "Unknown option argument: \"-${OPTARG}\"\nMore info with:\t\"$0 --help\"";;
-    esac
-done
+# if [[ -z $1 ]]; then
+#     echo -e "Usage:\t\t$0 [ --help ] [ --version ]\nMore info with:\t$0 --help"
+#     exit 1
+# fi
+#
+# while getopts :n-: arguments;do
+#     case $arguments in
+#     -)  # Parse long arguments
+#         case "${OPTARG}" in
+#             help)       helper;;
+#             version)    ver;;
+#             *)          echo -e "Unknown option argument: \"-${OPTARG}\"\nMore info with: \"$0 --help\"";;
+#         esac;;
+#     *)  # Unknown argument
+#         echo -e "Unknown option argument: \"-${OPTARG}\"\nMore info with:\t\"$0 --help\"";;
+#     esac
+# done
