@@ -8,7 +8,7 @@
 # https://github.com/cvigilv/
 # ==============================================================================
 
-__version = '0.0'
+__version__ = '0.0'
 __title__ = '<++>.py - <++> (version {})'.format(__version__)
 
 if __name__ == '__main__':
