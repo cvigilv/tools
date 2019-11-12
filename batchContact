@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # ===================================================
-# batchContact (version 0.0)
+# batchContact (version 0.1)
 # by Carlos Vigil Vásquez
 #
 # Create contacts and store in folder for year folder
@@ -10,10 +10,11 @@
 # ===================================================
 
 # Some basic stuff for "software development"...
-_version_="0.0"
-_released_="Currently in development"
+_version_="0.1"
+_released_="2019.11.12"
 _title_="batchContact - Create and store contacts $_version_"
 
+# Functions
 helper()
 {
 echo "
@@ -22,7 +23,8 @@ Usage: batchContact [arguments]
 Arguments:
     -h  or  --help              Print Help (this message) and exit
     --version                   Print version information and exit
-    -o  or  --overwrite         Overwrite existing contact sheets";
+    -o  or  --overwrite         Overwrite existing contact sheets
+    -p  or  --path              Run script in specific path";
 exit 1;
 }
 
@@ -43,7 +45,7 @@ contactSheet;
 createSymlink()
 {
 echo "· Creating symlink for contact sheet of $PWD";
-ln -f $(basename $PWD)C.jpg $PARENT_DIR/Contacts/$(basename $PWD);
+cp $(basename $PWD)C.jpg $PARENT_DIR/Contacts/$(basename $PWD)C.jpg;
 }
 
 ErrorMessage()
@@ -68,11 +70,12 @@ while getopts :not:-: arguments;do
             help)       helper;;
             version)    ver;;
             overwrite)  OVERWRITE="true";;
+            path)       DIR=${OPTARG};;
             *)          echo $_title_; echo -e "Unknown option argument: \"-${OPTARG}\"\nMore info with: \"$0 --help\"";;
         esac;;
     o)  # Overwrite previously existing contact sheets
         OVERWRITE="true";;
-    t)  # Run for given path
+    p)  # Run for given path
         DIR=${OPTARG};;
     *)  # Unknown argument
         echo $_title_;
@@ -105,6 +108,7 @@ if [ -z $DIR ]; then
                 createContact && createSymlink && cd $PARENT_DIR || ErrorMessage "*"
             else
                 if $OVERWRITE; then
+                    echo -e "\e[91m\e[1m[ALERT]\e[0m Overwriting existing contact sheet \"$(basename $(pwd))C.jpg\"!"
                     createContact && createSymlink && cd $PARENT_DIR
                 else
                     ErrorMessage "Overwrite"
