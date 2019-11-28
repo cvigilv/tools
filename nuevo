@@ -1,0 +1,87 @@
+#!/bin/sh
+#
+# = nuevo ======================================================================
+# nuevo (version 0.1)
+# by Carlos Vigil Vásquez
+#
+# Create files from template for scripting
+#
+# https://github.com/cvigilv/
+# ==============================================================================
+
+# SCRIPT HISTORY
+_version_="0.1"
+_released_="2019.11.21"
+_title_="nuevo - Ready-to-write script generator $_version_"
+
+# FUNCTIONS
+helper() {
+echo "
+Usage: $0 [arguments]
+
+Arguments:
+-h or --help            Print Help (this message) and exit
+--version               Print version information and exit
+-n                      Name of new file
+-x                      Extension of new file (Available extensions are 'sh', 'py', 'rmd', 'dmenu' & 'cpp'";
+exit 1; }
+
+ver() {
+echo "
+Version:                $_version_
+Release:                $_released_";
+exit 1; }
+
+# DEFAULT VALUES
+EXTENSIONS="py rmd dmenu rmd cpp"
+NAME="nuevo"
+
+# ARGUMENT PARSING
+if [[ -z $1 ]]; then
+    echo -e "Usage:\t\t$0 [ -f <string> ] [ -x <py|sh|rmd|dmenu> ] [ --help ] [ --version ]\nMore info with:\t$0 --help"
+    exit 1
+fi
+
+while getopts :f:x:-: arguments; do
+    case $arguments in
+    -)  # Parse long arguments
+        case "${OPTARG}" in
+            help)       helper;;
+            version)    ver;;
+            *)          echo $_title_; echo -e "Unknown option argument: \"-${OPTARG}\"\nMore info with: \"$0 --help\"";;
+        esac;;
+    f)  NAME=${OPTARG};;
+    x)  EXT=${OPTARG};;
+    h)  helper;;
+    *)  echo -e "Unknown option argument: \"-${OPTARG}\"\nMore info with:\t\"$0 --help\"";;
+    esac
+done
+
+# MAIN
+echo "$_title_"
+
+# Check if given extensions is available in templates
+[[ $EXTENSIONS =~ (^|[[:space:]])$EXT($|[[:space:]]) ]] || echo -e "Unknown file extension: \"$EXT\"\nMore info with:\t\"$0 --help\" "
+
+# Assing some variables based in the extension given
+case "$EXT" in
+    py)    LANGUAJE="Python"    ;TEMPLATE="PYT";;
+    sh)    LANGUAJE="Shell"     ;TEMPLATE="SHT";;
+    rmd)   LANGUAJE="RMarkdown" ;TEMPLATE="RMT";;
+    dmenu) LANGUAJE='Dmenu'     ;TEMPLATE="DMT";;
+    cpp)   LANGUAJE='C++'       ;TEMPLATE="CPT";;
+esac
+
+# Add extension to file name if it doesn't have one already
+if [[ -z ${NAME} ]]; then
+    NAME="nuevo."${EXT}
+elif [[ "${NAME}" =~ ${EXT} ]]; then
+    NAME=${NAME}
+else
+    NAME=${NAME}.${EXT}
+fi
+
+# Create new preformatted file to edit
+cp $HOME/Repos/tools/templates/${TEMPLATE} ./${NAME}
+echo "Created $LANGUAJE file: $(dirname $0)/$NAME"
+exit 1
