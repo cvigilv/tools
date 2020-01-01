@@ -38,7 +38,7 @@ NAME="nuevo"
 
 # ARGUMENT PARSING
 if [[ -z $1 ]]; then
-    echo -e "Usage:\t\t$0 [ -f <string> ] [ -x <py|sh|rmd|dmenu> ] [ --help ] [ --version ]\nMore info with:\t$0 --help"
+    echo -e "Usage:\t\t$0 [ -f <string> ] [ -x <py|sh|rmd|dmenu|cpp> ] [ --help ] [ --version ]\nMore info with:\t$0 --help"
     exit 1
 fi
 
@@ -65,11 +65,11 @@ echo "$_title_"
 
 # Assing some variables based in the extension given
 case "$EXT" in
-    py)    LANGUAJE="Python"    ;TEMPLATE="PYT";;
-    sh)    LANGUAJE="Shell"     ;TEMPLATE="SHT";;
-    rmd)   LANGUAJE="RMarkdown" ;TEMPLATE="RMT";;
-    dmenu) LANGUAJE='Dmenu'     ;TEMPLATE="DMT";;
-    cpp)   LANGUAJE='C++'       ;TEMPLATE="CPT";;
+    py)    LANGUAJE="Python"    ;TEMPLATE="python.template";;
+    sh)    LANGUAJE="Shell"     ;TEMPLATE="shell.template";;
+    rmd)   LANGUAJE="RMarkdown" ;TEMPLATE="rmarkdown.template";;
+    dmenu) LANGUAJE='Dmenu'     ;TEMPLATE="dmenu.template";;
+    cpp)   LANGUAJE='C++'       ;TEMPLATE="cpp.template";;
 esac
 
 # Add extension to file name if it doesn't have one already
@@ -82,6 +82,5 @@ else
 fi
 
 # Create new preformatted file to edit
-cp $HOME/Repos/tools/templates/${TEMPLATE} ./${NAME}
+cp $HOME/.scripts/templates/${TEMPLATE} ./${NAME}
 echo "Created $LANGUAJE file: $(dirname $0)/$NAME"
-exit 1
