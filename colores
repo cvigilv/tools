@@ -1,20 +1,31 @@
-#!/usr/bin/bash
-#
-# ANSI color scheme script featuring Space Invaders
-#
-# Original: http://crunchbang.org/forums/viewtopic.php?pid=126921%23p126921#p126921
-# Modified by lolilolicon
-#
+#!/bin/sh
 
+# = colores ===================================================================
+#
+# Show terminal colors
+#
+# by Carlos Vigil Vaśquez
+# https://github.com/cvigilv/tools/
+# =============================================================================
+
+# SCRIPT HISTORY
+_version_="0.1"
+_released_="2020.01.01"
+_title_="colores - $_version_"
+
+# Get all colors available for terminal
 f=3 b=4
 for j in f b; do
-  for i in {0..9}; do
-    printf -v $j$i %b "\e[${!j}${i}m"
-  done
+    for i in {0..9}; do
+        printf -v $j$i %b "\e[${!j}${i}m"
+    done
 done
+
+# Assign normal and bold variants to variable
 bld=$'\e[1m'
 rst=$'\e[0m'
 
+# Show colors in terminal
 cat << EOF
 
 NORMAL: $f1███$f2███$f3███$f4███$f5███$f6███$f7███$rst
