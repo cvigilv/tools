@@ -23,7 +23,7 @@ Arguments:
 -h or --help            Print Help (this message) and exit
 --version               Print version information and exit
 -n                      Name of new file
--x                      Extension of new file (Available extensions are 'sh', 'py', 'rmd', 'dmenu' & 'cpp'";
+-x                      Extension of new file (Available extensions are 'sh', 'py', 'rmd', 'dmenu' & 'cpp')";
 exit 1; }
 
 ver() {
@@ -42,7 +42,7 @@ if [[ -z $1 ]]; then
     exit 1
 fi
 
-while getopts :f:x:-: arguments; do
+while getopts :n:x:-: arguments; do
     case $arguments in
     -)  # Parse long arguments
         case "${OPTARG}" in
@@ -50,7 +50,7 @@ while getopts :f:x:-: arguments; do
             version)    ver;;
             *)          echo $_title_; echo -e "Unknown option argument: \"-${OPTARG}\"\nMore info with: \"$0 --help\"";;
         esac;;
-    f)  NAME=${OPTARG};;
+    n)  NAME=${OPTARG};;
     x)  EXT=${OPTARG};;
     h)  helper;;
     *)  echo -e "Unknown option argument: \"-${OPTARG}\"\nMore info with:\t\"$0 --help\"";;

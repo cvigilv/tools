@@ -38,8 +38,8 @@ exit 1;
 
 createContact()
 {
-echo "· Creating contact sheet for $PWD";
-contactSheet;
+echo "· Creating contact sheet for $PWD from $1 files";
+contactSheet -x $1;
 }
 
 createSymlink()
@@ -105,7 +105,11 @@ if [ -z $DIR ]; then
 
             # Check existence of contact sheet & if it can be overwritten
             if [ ! -f "$(basename $DIR)C.jpg" ]; then
-                createContact && createSymlink && cd $PARENT_DIR || ErrorMessage "*"
+                createContact "jpg" && cd $PARENT_DIR || \
+                createContact "jpeg" && cd $PARENT_DIR || \
+                createContact "tif" && cd $PARENT_DIR || \
+                createContact "tiff" && cd $PARENT_DIR || \
+                ErrorMessage "*"
             else
                 if $OVERWRITE; then
                     echo -e "\e[91m\e[1m[ALERT]\e[0m Overwriting existing contact sheet \"$(basename $(pwd))C.jpg\"!"

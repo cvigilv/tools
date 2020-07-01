@@ -1,0 +1,5 @@
+#/bin/sh
+SESSION=$(tmux ls | cut -d':' -f1 | \
+	dmenu -i -fn "Misc Tamsyn:size=16" -p "tmux session to launch: " -nb "#1c1c1c" -nf "#f1f1f1" -sb "#3465A4" -sf "#1c1c1c")
+
+$TERM -e tmux a -t $SESSION

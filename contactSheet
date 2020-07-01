@@ -14,4 +14,24 @@ _version_="0.0"
 _released_="Currently in development"
 _title_="contactSheet - Easy proofing of images! $_version_"
 
-magick montage -label "%f" -title "$(basename $PWD)" -tile 6x7 -fill 'black' -pointsize 36 -background "#f1f1f1ff" -bordercolor "#5f5f5fff" -borderwidth 2 -geometry 600x400+20+20 *.tif* $(basename $PWD)C.jpg
+while getopts :x:-: arguments;do
+    case $arguments in
+    -)  # Parse long arguments
+        case "${OPTARG}" in
+            help)       helper;;
+            version)    ver;;
+            *)          echo $_title_; echo -e "Unknown option argument: \"-${OPTARG}\"\nMore info with: \"$0 --help\"";;
+        esac;;
+    x)  # File extension
+        EXT=${OPTARG};;
+    *)  # Unknown argument
+        echo $_title_;
+        echo -e "Unknown option argument: \"-${OPTARG}\"\nMore info with:\t\"$0 --help\"";;
+    esac
+done
+
+magick montage -label "%f" -title "$(basename $PWD)" \
+    -tile 6x7 -fill 'black' -pointsize 36 \
+    -background "#f1f1f1ff" -bordercolor "#5f5f5fff" \
+    -borderwidth 2 -geometry 600x400+20+20 \
+    *.${EXT}* $(basename $PWD)C.jpg
