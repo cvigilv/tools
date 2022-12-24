@@ -1,0 +1,5 @@
+#!/bin/sh
+
+IMG="$1"
+convert "$IMG" -resize 3000x3000\> "$IMG"
+

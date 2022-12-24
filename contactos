@@ -1,0 +1,44 @@
+#!/usr/local/bin/julia
+#title           :contacto.jl
+#description     :Create digital contact sheets
+#author          :Carlos Vigil Vásquez
+#date            :20221120
+#version         :20221120a
+#notes           :Requires ArgParse.jl, Glob.jl and ProgressMeter.jl
+#copyright       :Copyright (C) 2022 Carlos Vigil Vásquez (cvigil2@uc.cl).
+#license         :Permission to copy and modify is granted under the MIT license
+
+using Glob
+using ArgParse
+using ProgressMeter
+using .Threads
+
+function main(args)
+    # Argument parsing
+    configs = ArgParseSettings()
+
+    add_arg_group!(configs, "I/O option:")
+    @add_arg_table! configs begin
+        "-i"
+        arg_type = String
+        action = :store_arg
+        help = "Input files pattern"
+        required = true
+        example = "./*.jpg"
+        "-o"
+        arg_type = String
+        action = :store_arg
+        help = "Contact sheet file name"
+        required = true
+    end
+
+    args = parse_args(args, configs)
+
+    # Main body
+    files = glob(args.i)
+    while !isempty(files)
+        @show n = length(files) ≥ 36 ? 36 : length(files)
+        group = splice!(files, 1:n)
+        push!(groups, group)
+    end
+end
