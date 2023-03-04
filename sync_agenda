@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Settings
+WGET=/bin/wget
+ICS2ORG=/home/carlos/.local/bin/ical2orgpy
+ICSFILE=/tmp/gcal.ics
+ORGFILE=/home/carlos/agenda/calendar/gcal.org
+URL1=https://calendar.google.com/calendar/ical/carlos.vigil.v%40gmail.com/private-a0ffba791a5f82de677dc295b198e3b3/basic.ics
+URL2=https://calendar.google.com/calendar/ical/cvigil2%40uc.cl/private-a1af2c06dc51c318384a367e14ef678c/basic.ics
+URL3=https://calendar.google.com/calendar/ical/itmightbecarlos%40gmail.com/private-a3c242104b731c9068385d02e920612d/basic.ics
+
+# Get ICS files from my calendars
+$WGET -O ${ICSFILE}_1 $URL1
+$WGET -O ${ICSFILE}_2 $URL2
+$WGET -O ${ICSFILE}_3 $URL3
+
+# Populate org file with calendar contents
+: > $ORGFILE
+$ICS2ORG ${ICSFILE}_1 - >> $ORGFILE
+$ICS2ORG ${ICSFILE}_2 - >> $ORGFILE
+$ICS2ORG ${ICSFILE}_3 - >> $ORGFILE
