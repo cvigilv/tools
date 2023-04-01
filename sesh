@@ -1,30 +1,58 @@
 #!/usr/bin/env bash
 
-if [[ $# -eq 1 ]]; then
-    selected=$1
+# Select project to work on
+projects=$(find ~/git ~/documents/work/ -mindepth 1 -maxdepth 1 -type d)
+selected=$(echo "$projects" | fzf --preview 'exa -a --tree --level=1 {}')
+[[ -z $selected ]] && echo "No project selected, quitting!" && exit 0
+
+# Create project session if it doesn't exist
+project_name=$(basename "$selected" | tr . _)
+if ! tmux has-session -t="$project_name" 2> /dev/null; then
+	# Create session
+	cd "$selected" || exit 0
+	echo "Creating session for project '$project_name'"
+	tmux new-session -ds "$project_name" -c "$selected"
+
+	# Create windows with relevant programs
+	# Neovim
+	tmux rename-window -t "$project_name":0 'nvim'
+	tmux send-keys -t "$project_name":nvim 'nvim .' C-m
+	tmux send-keys -t "$project_name":nvim ',ff'
+	
+	# Git status and issues
+	if [[ -d "${selected}/.git" ]]; then
+		tmux new-window -t "$project_name" -n 'git'
+		tmux send-keys -t "$project_name":git 'git status' C-m
+		tmux split-window -h -t "$project_name":git
+		tmux send-keys -t "$project_name":git 'gh issue status' C-m
+	fi
+
+	# Conda environment
+	if [[ -f "${selected}/conda_env.yml" ]]; then
+		tmux new-window -t "$project_name" -n 'conda-env'
+		condaenv=$(grep "name:" "conda_env.yml" | cut -d' ' -f2)
+		tmux send-keys -t "$project_name":conda-env "conda activate $condaenv; clear" C-m
+	fi
+	
+	# Python environment
+	if [[ -d "${selected}/venv" ]]; then
+		tmux new-window -t "$project_name" -n 'python-env'
+		tmux send-keys -t "$project_name":python-env "source venv/bin/activate; clear" C-m
+	fi
+	
+	# Julia environment
+	if [[ -f "${selected}/Manifest.toml" ]] || [[ -f "${selected}/Project.toml" ]] ; then
+		tmux new-window -t "$project_name" -n 'julia-env'
+		tmux send-keys -t "$project_name":julia-env "alias julia='julia --project=$selected'; clear" C-m
+	fi
+
+	# Clean-up
+	cd - > /dev/null 2>&1 || exit 0
+fi
+
+# Attach to project session
+if [[ -z "$TMUX" ]]; then
+	tmux attach -t="$project_name"
 else
-    selected=$(find ~/git ~/documents/work -mindepth 1 -maxdepth 1 -type d | fzf)
+	tmux switch-client -t="$project_name"
 fi
-
-if [[ -z $selected ]]; then
-    exit 0
-fi
-
-selected_name=$(basename "$selected" | tr . _)
-tmux_running=$(pgrep tmux)
-
-if [[ -z $TMUX ]] && [[ -z $tmux_running ]]; then
-    tmux new-session -s $selected_name -c $selected
-    exit 0
-fi
-
-if ! tmux has-session -t=$selected_name 2> /dev/null; then
-    tmux new-session -ds $selected_name -c $selected
-fi
-
-tmux switch-client -t $selected_name
-tmux attach -t $selected_name
-
-# Things I would like to have
-# - [ ] If directory has a conda_env.yaml or Julia TOML files, activate the environment
-# - [ ] Automatically open windows with (i) vim and (ii) GitHub status and issues
