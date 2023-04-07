@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+VERSION="0.0"
+TITLE="nenv - v$VERSION"
+
+function usage() {
+	cat <<- EOF
+	usage: nenv <env-name>
+	EOF
+
+}
+
+# Check for arguments
+if [ $# -eq 0 ]; then
+	usage
+	exit 1
+fi
+echo "$TITLE"
+echo
+
+echo "Select Python version to use for conda environment:"
+PYVERSION=$(gum choose --height 5 "latest" "3.10" "3.9" "3.8" "3.7" "3.6")
+echo "Python version selected: $PYVERSION"
+if [ "$PYVERSION" == "latest" ]; then
+	conda create --name "$1" --yes
+else
+	conda create --name "$1" python="$PYVERSION" --yes
+fi
+
+# Activate environment
+eval "$(conda shell.bash hook)"
+conda activate "$1"
+
+read -p "Add environment as kernel? [Yy/Nn]: " -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+	conda install ipykernel -y && ipython kernel install --user --name="$1"
+fi
