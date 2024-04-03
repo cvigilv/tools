@@ -1,30 +1,84 @@
-#!/bin/sh
-#
-# =============================================
-# getbib.sh (version 0.0)
-# by Carlos Vigil Vásquez
-#
-# Get .bib formatted data for publication
-# Inspired in Luke Smith implementation.
-# https://github.com/cvigilv/
-# =============================================
+#!/usr/bin/env bash
+# name: getAPA
+#  ver: v1.0
+# date: 2024/04/02
+# desc: Get APA formatted citation from DOI or PDF.
+# auth: Carlos Vigil-Vásquez
+# deps: poppler (pdfinfo & pdftotext)
+#  lic: Permission to copy and modify is granted under the MIT license
+#   cc: Copyright (C) 2024 Carlos Vigil-Vásquez (carlos.vigil.v@gmail.com)
 
-[ -z "$1" ] && echo -e "Usage:\t $0 < /path/to/pdf/file | DOI >" && exit
-
-if [ -f "$1" ]; then
-    # Get DOI from file
-    DOI=$(pdfinfo "$1" | grep -io "doi:.*" -m 1) ||
-    DOI=$(pdftotext "$1" 2>/dev/null - | grep -io "doi:.*" -m 1) ||
-    exit "BIB not found for $1" 1
-elif [[ "$1" != *"https://doi.org/"* ]]; then
-    # Input DOI code
-	DOI="https://doi.org/$1"
-else
-    # Input DOI URL
-    DOI="$1"
+set -eo pipefail
+if [[ "${TRACE-0}" == "1" ]]; then
+	set -o xtrace
 fi
 
-DOI=$(echo -e "${DOI}" | tr -d '[:space:]')
-echo $DOI
-# Check crossfref.org for the bib citation
-curl -LH "Accept: text/x-bibliography; style=apa" -w "\\n" $DOI
+function ensure_dependency() {
+	local tool=$1
+	if ! command -v "${tool}" &>/dev/null; then
+		echo "Error: $tool not installed" >&2
+		exit 1
+	fi
+}
+
+function parse_doi() {
+	local doi=$1
+	local citation
+
+	# Add URL prefix if missing
+	if [[ "${doi}" != *"https://doi.org/"* ]]; then
+		doi="https://doi.org/${doi}"
+	fi
+
+	# Get citation using DOI Context Negotiation
+	citation=$(curl -LH "Accept: text/x-bibliography; style=apa" -w "\\n" "$doi" 2>/dev/null)
+	if [ -n "${citation}" ]; then
+		echo "${citation}"
+	fi
+}
+
+function get_doi_from_pdf() {
+	local pdf="$1"
+	local doi
+
+	# Extract DOI from PDF file
+	doi=$(pdfinfo "${pdf}" | grep -io "doi:.*" -m 1) ||
+		doi=$(pdftotext "${pdf}" - 2>/dev/null | grep -io "doi:.*" -m 1)
+	if [ -n "${doi}" ]; then
+		echo "${doi/doi:/}"
+	else
+		echo "DOI not found in $1"
+		exit 1
+	fi
+}
+
+main() {
+	>&2 echo "getAPA - v1.0"
+	if [ -z "$1" ]; then
+		echo -e "Usage: getAPA <doi | /path/to/pdf>"
+		exit
+	elif [[ "${1-}" =~ ^-*h(elp)?$ ]]; then
+		echo 'Usage: getAPA <doi | /path/to/pdf>
+
+Get APA formatted citation from DOI, list of DOIs or PDF.
+'
+		exit
+	fi
+
+	ensure_dependency "pdfinfo"
+	ensure_dependency "pdftotext"
+	ensure_dependency "curl"
+
+	local doi
+	local input=$1
+
+	if [ -f "$input" ]; then
+		doi=$(get_doi_from_pdf "${input}")
+	else
+		doi="${input}"
+	fi
+
+	parse_doi "${doi}"
+}
+
+main "$@"
