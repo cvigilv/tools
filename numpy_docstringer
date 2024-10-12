@@ -1,0 +1,42 @@
+#!/bin/sh
+
+# cat - | jq -Rsa . | tr -d '"'
+
+# prompt='{\n\t"model": "claude-3-5-sonnet-20240620",\n\t"max_tokens": 1024,\n\t"messages": [{ "role": "user", "text": "You are tasked with generating a docstring in the Numpy specification for a given Python function. The function code will be provided to you, and you must return only the docstring. Here is the Python code for which you need to generate a docstring:\n\n<python_code>\n'
+# prompt+=$(cat - | jq -Rsa . | tr -d '"')
+# prompt+='\n</python_code>\n\nFollow these guidelines to create the docstring:\n\n1. Use the Numpy docstring format, which includes sections for a short summary, parameters, returns, and optionally notes and examples.\n\n2. Keep the language concise and clear. Avoid unnecessary words or explanations.\n\n3. Include variable typing for all parameters and return values. Use Python type hints syntax (e.g., int, float, str, List[int], Dict[str, float]).\n\n4. Add a \"Notes\" section if the function has any important caveats, edge cases, or complex behaviors that need explanation.\n\n5. Do not include an \"Examples\" section.\n\n6. Ensure that the docstring accurately reflects the functions behavior, parameters, and return values as shown in the provided code.\n\nFormat your docstring as follows:\n```\n\"\"\"\nShort summary of the function.\n\nParameters\n----------\nparam1 : type\n    Description of param1\nparam2 : type\n    Description of param2\n\nReturns\n-------\nreturn_type\n    Description of return value\n\nNotes\n-----\nAny important notes about function behavior (if necessary)\n\"\"\"\n```\n\nGenerate the docstring based on the provided Python code and output it without any additional text or explanations.}]}'
+#
+# echo "$prompt"
+
+curl https://api.anthropic.com/v1/messages \
+	--header "x-api-key: $ANTHROPIC_API_KEY" \
+	--header "anthropic-version: 2023-06-01" \
+	--header "content-type: application/json" \
+	--data "$(cat -)"
+
+# import anthropic
+#
+# client = anthropic.Anthropic(
+#     # defaults to os.environ.get("ANTHROPIC_API_KEY")
+#     api_key="my_api_key",
+# )
+#
+# # Replace placeholders like {{PYTHON_CODE}} with real values,
+# # because the SDK does not support variables.
+# message = client.messages.create(
+#     model="claude-3-5-sonnet-20240620",
+#     max_tokens=1000,
+#     temperature=0,
+#     messages=[
+#         {
+#             "role": "user",
+#             "content": [
+#                 {
+#                     "type": "text",
+#                     "text": "You are tasked with generating a docstring in the Numpy specification for a given Python function. The function code will be provided to you, and you must return only the docstring. Here is the Python code for which you need to generate a docstring:\n\n<python_code>\n{{PYTHON_CODE}}\n</python_code>\n\nFollow these guidelines to create the docstring:\n\n1. Use the Numpy docstring format, which includes sections for a short summary, parameters, returns, and optionally notes and examples.\n\n2. Keep the language concise and clear. Avoid unnecessary words or explanations.\n\n3. Include variable typing for all parameters and return values. Use Python type hints syntax (e.g., int, float, str, List[int], Dict[str, float]).\n\n4. Add a \"Notes\" section if the function has any important caveats, edge cases, or complex behaviors that need explanation.\n\n5. Do not include an \"Examples\" section.\n\n6. Ensure that the docstring accurately reflects the function's behavior, parameters, and return values as shown in the provided code.\n\nFormat your docstring as follows:\n```\n\"\"\"\nShort summary of the function.\n\nParameters\n----------\nparam1 : type\n    Description of param1\nparam2 : type\n    Description of param2\n\nReturns\n-------\nreturn_type\n    Description of return value\n\nNotes\n-----\nAny important notes about function behavior (if necessary)\n\"\"\"\n```\n\nGenerate the docstring based on the provided Python code and output it without any additional text or explanations."
+#                 }
+#             ]
+#         }
+#     ]
+# )
+# print(message.content)

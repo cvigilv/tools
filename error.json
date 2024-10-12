@@ -1,0 +1,10 @@
+{
+  "model": "claude-3-5-sonnet-20240620",
+  "max_tokens": 1024,
+  "messages": [
+    {
+      "role": "user",
+      "text": "You are tasked with generating a docstring in the Numpy specification for a given Python function. The function code will be provided to you, and you must return only the docstring. Here is the Python code for which you need to generate a docstring:\n<python_code>\n def addup(a: float, b: float):\n\tif a == b:\n\t\treturn a * b\n\telse:\n\t\treturn a + b\n</python_code> \n Follow these guidelines to create the docstring: \n 1. Use the Numpy docstring format, which includes sections for a short summary, parameters, returns, and optionally notes and examples. \n 2. Keep the language concise and clear. Avoid unnecessary words or explanations. \n 3. Include variable typing for all parameters and return values. Use Python type hints syntax (e.g., int, float, str, List[int], Dict[str, float]). \n 4. Add a \"Notes\" section if the function has any important caveats, edge cases, or complex behaviors that need explanation. \n 5. Do not include an \"Examples\" section. \n 6. Ensure that the docstring accurately reflects the functions behavior, parameters, and return values as shown in the provided code. \n Format your docstring as follows:\n ```\n \"\"\"\n Short summary of the function.\n \n\n Parameters\n ----------\n param1 : type\n Description of param1\n param2 : type\n Description of param2\n \n\n Returns\n -------\n return_type\n Description of return value\n \n\n Notes\n -----\n Any important notes about function behavior (if necessary)\n \"\"\"\n ```\n \n\n Generate the docstring based on the provided Python code and output it without any additional text or explanations."
+    }
+  ]
+}

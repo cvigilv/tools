@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
 # Select project to work on
-projects=$(find ~/git ~/documents/work/ -mindepth 1 -maxdepth 1 -type d)
+projects=$(find ~/Documents/git ~/git ~/documents/work/ -mindepth 1 -maxdepth 1 -type d)
 selected=$(echo "$projects" | fzf --preview 'exa -a --tree --level=1 {}')
 [[ -z $selected ]] && echo "No project selected, quitting!" && exit 0
 
 # Create project session if it doesn't exist
 project_name=$(basename "$selected" | tr . _)
-if ! tmux has-session -t="$project_name" 2> /dev/null; then
+if ! tmux has-session -t="$project_name" 2>/dev/null; then
 	# Create session
 	cd "$selected" || exit 0
 	echo "Creating session for project '$project_name'"
@@ -18,7 +18,7 @@ if ! tmux has-session -t="$project_name" 2> /dev/null; then
 	tmux rename-window -t "$project_name":0 'nvim'
 	tmux send-keys -t "$project_name":nvim 'nvim .' C-m
 	tmux send-keys -t "$project_name":nvim ',ff'
-	
+
 	# Git status and issues
 	if [[ -d "${selected}/.git" ]]; then
 		tmux new-window -t "$project_name" -n 'git'
@@ -33,21 +33,21 @@ if ! tmux has-session -t="$project_name" 2> /dev/null; then
 		condaenv=$(grep "name:" "conda_env.yml" | cut -d' ' -f2)
 		tmux send-keys -t "$project_name":conda-env "conda activate $condaenv; clear" C-m
 	fi
-	
+
 	# Python environment
 	if [[ -d "${selected}/venv" ]]; then
 		tmux new-window -t "$project_name" -n 'python-env'
 		tmux send-keys -t "$project_name":python-env "source venv/bin/activate; clear" C-m
 	fi
-	
+
 	# Julia environment
-	if [[ -f "${selected}/Manifest.toml" ]] || [[ -f "${selected}/Project.toml" ]] ; then
+	if [[ -f "${selected}/Manifest.toml" ]] || [[ -f "${selected}/Project.toml" ]]; then
 		tmux new-window -t "$project_name" -n 'julia-env'
 		tmux send-keys -t "$project_name":julia-env "alias julia='julia --project=$selected'; clear" C-m
 	fi
 
 	# Clean-up
-	cd - > /dev/null 2>&1 || exit 0
+	cd - >/dev/null 2>&1 || exit 0
 fi
 
 # Attach to project session

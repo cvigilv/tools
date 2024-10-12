@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+# name: doi2bibtex
+#  ver: v0.0
+# date: 2024/04/03
+# desc: Get bibtex object from DOI.
+# auth: Carlos Vigil-Vásquez
+# deps: curl
+#  lic: Permission to copy and modify is granted under the MIT license
+#   cc: Copyright (C) 2024 Carlos Vigil-Vásquez (carlos.vigil.v@gmail.com)
+
+set -eo pipefail
+if [[ "${TRACE-0}" == "1" ]]; then
+	set -o xtrace
+fi
+
+# Helper functions
+function usage() {
+	echo "Usage: doi2citation <doi> <style>"
+}
+
+function help_message() {
+	echo "
+Get formatted citation from DOI.
+
+Common styles:
+  - apa
+  - american-chemical-society
+  - bibtex
+  - chicago-annotated-bibliography
+  - nature
+
+For all available citation styles, refer to
+<https://github.com/citation-style-language/styles>.
+"
+}
+
+function ensure_dependency() {
+	local tool=$1
+	if ! command -v "${tool}" &>/dev/null; then
+		echo "Error: $tool not installed" >&2
+		exit 1
+	fi
+}
+
+function parse_doi() {
+	local doi=$1
+	local style=$2
+	local citation
+
+	# Add URL prefix if missing
+	if [[ "${doi}" != *"https://doi.org/"* ]]; then
+		doi="https://doi.org/${doi}"
+	fi
+
+	# Get bibtex using DOI Context Negotiation
+	citation=$(curl -LH "Accept: text/x-bibliography; style=${style}" -w "\\n" "${doi}" 2>/dev/null)
+	if [ -n "${citation}" ]; then
+		echo "${citation}"
+	fi
+}
+
+main() {
+	>&2 echo "doi2citation - v0.0"
+	if [[ "${1-}" =~ ^-*h(elp)?$ ]]; then
+		usage
+		help_message
+		exit
+	elif [ $# -ne 2 ]; then
+		usage
+		exit
+	fi
+
+	ensure_dependency "curl"
+	parse_doi "${1}" "${2}"
+}
+
+main "$@"

@@ -4,8 +4,8 @@ VERSION="0.0"
 TITLE="nenv - v$VERSION"
 
 function usage() {
-	cat <<- EOF
-	usage: nenv <env-name>
+	cat <<-EOF
+		usage: nenv <env-name>
 	EOF
 
 }

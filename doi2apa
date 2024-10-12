@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# name: doi2apa
+#  ver: v0.0
+# date: 2024/04/03
+# desc: Get APA formatted citation from DOI.
+# auth: Carlos Vigil-Vásquez
+# deps: curl
+#  lic: Permission to copy and modify is granted under the MIT license
+#   cc: Copyright (C) 2024 Carlos Vigil-Vásquez (carlos.vigil.v@gmail.com)
+
+set -eo pipefail
+if [[ "${TRACE-0}" == "1" ]]; then
+	set -o xtrace
+fi
+
+# Helper functions
+function usage() {
+	echo "Usage: doi2apa <doi>"
+}
+
+function help_message() {
+	echo "
+Get APA formatted citation from DOI.
+"
+}
+
+main() {
+	cd "$(dirname "$0")"
+	>&2 echo "doi2apa - v0.0"
+
+	if [ $# -ne 1 ]; then
+		usage
+		exit
+	elif [[ "${1-}" =~ ^-*h(elp)?$ ]]; then
+		usage
+		help_message
+		exit
+	fi
+
+	(doi2citation "${1}" "apa" 2>/dev/null)
+}
+
+main "$@"
